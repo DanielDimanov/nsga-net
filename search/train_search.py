@@ -43,7 +43,10 @@ def main(genome, epochs, search_space='micro',
     # logging.getLogger().addHandler(fh)
 
     # ---- parameter values setting ----- #
-    CIFAR_CLASSES = 10
+    NUM_CLASSES = 4
+    CIFAR_CLASSES = NUM_CLASSES
+    DATA_SHAPE = (32, 32)
+    INPUT_CHANNELS = 3
     learning_rate = 0.025
     momentum = 0.9
     weight_decay = 3e-4
@@ -65,10 +68,10 @@ def main(genome, epochs, search_space='micro',
         model = Network(init_channels, CIFAR_CLASSES, layers, auxiliary, genotype)
     elif search_space == 'macro':
         genotype = macro_encoding.decode(genome)
-        channels = [(3, init_channels),
+        channels = [(INPUT_CHANNELS, init_channels),
                     (init_channels, 2*init_channels),
                     (2*init_channels, 4*init_channels)]
-        model = EvoNetwork(genotype, channels, CIFAR_CLASSES, (32, 32), decoder='residual')
+        model = EvoNetwork(genotype, channels, CIFAR_CLASSES,DATA_SHAPE, decoder='residual')
     else:
         raise NameError('Unknown search space type')
 
@@ -97,9 +100,11 @@ def main(genome, epochs, search_space='micro',
         weight_decay=weight_decay
     )
 
+    #TO DO: change
     CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
     CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
 
+    # data agumentation
     train_transform = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
