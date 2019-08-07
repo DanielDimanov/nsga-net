@@ -45,13 +45,13 @@ def main(genome, epochs, search_space='micro',
     # ---- parameter values setting ----- #
     NUM_CLASSES = 4
     CIFAR_CLASSES = NUM_CLASSES
-    DATA_SHAPE = (32, 32)
+    DATA_SHAPE = (128, 128)
     INPUT_CHANNELS = 3
     learning_rate = 0.025
     momentum = 0.9
     weight_decay = 3e-4
     data_root = '../data'
-    batch_size = 128
+    batch_size = 8
     cutout_length = 16
     auxiliary_weight = 0.4
     grad_clip = 5
@@ -102,32 +102,36 @@ def main(genome, epochs, search_space='micro',
 
     #TO DO: change
     CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
+    DATASET_MEAN = [0.4785047 , 0.45649716, 0.42604172]
+    CIFAR_MEAN = DATASET_MEAN
+    DATASET_STD = [0.31962952, 0.3112294 , 0.31206125]
     CIFAR_STD = [0.24703233, 0.24348505, 0.26158768]
+    CIFAR_STD = DATASET_STD
+#     # data agumentation
+#     train_transform = transforms.Compose([
+#         transforms.RandomCrop(32, padding=4),
+#         transforms.RandomHorizontalFlip(),
+#         transforms.ToTensor()
+#     ])
 
-    # data agumentation
-    train_transform = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor()
-    ])
+#     if cutout:
+#         train_transform.transforms.append(utils.Cutout(cutout_length))
 
-    if cutout:
-        train_transform.transforms.append(utils.Cutout(cutout_length))
+#     train_transform.transforms.append(transforms.Normalize(CIFAR_MEAN, CIFAR_STD))
 
-    train_transform.transforms.append(transforms.Normalize(CIFAR_MEAN, CIFAR_STD))
+#     valid_transform = transforms.Compose([
+#         transforms.ToTensor(),
+#         transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+#     ])
 
-    valid_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
-    ])
+#     train_data = my_cifar10.CIFAR10(root=data_root, train=True, download=True, transform=train_transform)
+#     valid_data = my_cifar10.CIFAR10(root=data_root, train=False, download=True, transform=valid_transform)
 
-    train_data = my_cifar10.CIFAR10(root=data_root, train=True, download=True, transform=train_transform)
-    valid_data = my_cifar10.CIFAR10(root=data_root, train=False, download=True, transform=valid_transform)
-
-    # num_train = len(train_data)
-    # indices = list(range(num_train))
-    # split = int(np.floor(train_portion * num_train))
-
+#     # num_train = len(train_data)
+#     # indices = list(range(num_train))
+#     # split = int(np.floor(train_portion * num_train))
+    train_data = train_dataset
+    valid_data = val_dataset
     train_queue = torch.utils.data.DataLoader(
         train_data, batch_size=batch_size,
         # sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
@@ -155,7 +159,7 @@ def main(genome, epochs, search_space='micro',
     model = add_flops_counting_methods(model)
     model.eval()
     model.start_flops_count()
-    random_data = torch.randn(1, 3, 32, 32)
+    random_data = torch.randn(1, INPUT_CHANNELS, *DATA_SHAPE)
     model(torch.autograd.Variable(random_data).to(device))
     n_flops = np.round(model.compute_average_flops_cost() / 1e6, 4)
     logging.info('flops = %f', n_flops)
@@ -297,6 +301,7 @@ def infer(valid_queue, net, criterion):
     # logging.info('valid acc %f', 100. * correct / total)
 
     return acc, test_loss/total
+
 
 
 if __name__ == "__main__":
