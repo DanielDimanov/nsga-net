@@ -108,7 +108,8 @@ def main():
     elif args.net_type == 'macro':
         genome = eval("macro_genotypes.%s" % args.arch)
         channels = [(3, 128), (128, 128), (128, 128)]
-        net = EvoNetwork(genome, channels, 10, (32, 32), decoder='dense')
+        #TODO FIX AND GET OUT AS GLOBAL VARIABLES!!!!
+        net = EvoNetwork(genome, channels, 4, (128, 128), decoder='dense')
     else:
         raise NameError('Unknown network type, please only use supported network type')
 

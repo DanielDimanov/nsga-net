@@ -17,7 +17,7 @@ import torchvision.transforms as transforms
 from models.macro_models import EvoNetwork
 from models.micro_models import NetworkCIFAR as Network
 
-import search.cifar10_search as my_cifar10
+# import search.cifar10_search as my_cifar10
 
 import time
 from misc import utils
@@ -52,7 +52,7 @@ def main(genome, epochs, search_space='micro',
     momentum = 0.9
     weight_decay = 3e-4
     data_root = '../data'
-    batch_size = 8
+    batch_size = 16
     cutout_length = 16
     auxiliary_weight = 0.4
     grad_clip = 5
@@ -101,7 +101,7 @@ def main(genome, epochs, search_space='micro',
         weight_decay=weight_decay
     )
 
-    #TO DO: change
+    #TODO: change
     CIFAR_MEAN = [0.49139968, 0.48215827, 0.44653124]
     DATASET_MEAN = [0.4785047 , 0.45649716, 0.42604172]
     CIFAR_MEAN = DATASET_MEAN
